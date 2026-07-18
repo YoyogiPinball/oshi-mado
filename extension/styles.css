@@ -1,0 +1,71 @@
+:root{--bg:#191c22;--surface:#232830;--surface2:#2b313b;--text:#d9dde4;--muted:#8b929e;--accent:#e08aa6;--border:#333a46}
+@media (prefers-color-scheme:light){:root{--bg:#f6f7f9;--surface:#fff;--surface2:#eef0f3;--text:#232830;--muted:#6b7280;--accent:#d0567f;--border:#e3e5ea}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,"Segoe UI",Roboto,"Noto Sans JP","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;line-height:1.5}
+
+/* popup */
+body.popup{width:760px}
+/* 通常タブで開いたとき（?view=tab）: 横幅の固定を外して広い画面いっぱいに使う。
+   ポップアップ内スクロール(main max-height)もページ全体スクロールに委ねる。 */
+body.popup.tabview{width:auto;max-width:1180px;margin:0 auto}
+body.popup.tabview main{max-height:none}
+.bar{position:sticky;top:0;z-index:1;display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg);border-bottom:1px solid var(--border)}
+.bar .spacer{flex:1}
+.bar .meta{color:var(--muted);font-size:12px}
+.bar select,.bar button{background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:4px 8px;font-size:13px;cursor:pointer}
+.tabs{position:sticky;top:41px;z-index:1;display:flex;gap:6px;padding:8px 12px;background:var(--bg);border-bottom:1px solid var(--border);overflow-x:auto}
+.tab{flex:none;background:var(--surface);color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:6px 14px;font-size:13px;cursor:pointer;white-space:nowrap}
+.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.tab .cnt{opacity:.85;font-size:12px}
+main{padding:8px 12px 16px;max-height:520px;overflow:auto}
+.thumb{position:relative}
+.badges{position:absolute;left:6px;top:6px;display:flex;gap:4px}
+.badge{font-size:11px;padding:2px 7px;border-radius:6px;background:rgba(0,0,0,.72);color:#fff;font-weight:600}
+.badge.live{background:#d84a6a}
+.badge.up{background:#5a86c4}
+.badge.arc{background:#6b7280}
+.badge.sh{background:#8b6fc0}
+.day{margin-top:14px}
+.day h2{margin:0 0 8px;padding:4px 0;font-size:13px;color:var(--accent);border-bottom:1px solid var(--border)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.card{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;text-decoration:none;color:inherit}
+.card:hover{border-color:var(--accent)}
+.thumb{aspect-ratio:16/9;background:var(--surface2)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.info{padding:8px 10px 10px}
+.ch{color:var(--muted);font-size:11px;margin-bottom:2px}
+.vtitle{font-size:13px;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.time{margin-top:4px;color:var(--muted);font-size:11px}
+.empty{color:var(--muted);text-align:center;padding:30px 0}
+
+/* options */
+body.options{max-width:720px;margin:0 auto;padding:24px}
+body.options h1{font-size:20px}
+body.options h2{font-size:15px;margin:28px 0 6px;padding-bottom:4px;color:var(--accent);border-bottom:1px solid var(--border)}
+body.options p{font-size:13px;color:var(--muted)}
+body.options a{color:var(--accent)}
+body.options .row{display:flex;gap:6px;align-items:center}
+body.options input[type=password],body.options input[type=text]{flex:1;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
+body.options #toggleKey{margin:0;background:var(--surface);color:var(--text);border:1px solid var(--border);padding:8px 10px}
+body.options textarea{width:100%;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
+body.options h3{font-size:14px;margin:22px 0 4px}
+body.options button{margin-top:10px;background:var(--accent);color:#fff;border:0;border-radius:8px;padding:8px 16px;font-size:14px;cursor:pointer}
+body.options .meta{color:var(--muted);font-size:13px;margin-left:8px}
+body.options .saverow{margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+body.options .opt-row{display:flex;align-items:flex-start;gap:8px;cursor:pointer;color:var(--text)}
+body.options .opt-row input{margin-top:2px;flex:none;accent-color:var(--accent);width:16px;height:16px;cursor:pointer}
+
+/* 推しリスト（編集画面） */
+.chlist{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.ch-row{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:6px 10px}
+.ch-row.new{border-color:var(--accent)}
+.ch-row.del{opacity:.5}
+.ch-row.del .ch-name{text-decoration:line-through}
+.ch-ico{width:32px;height:32px;border-radius:50%;flex:none;object-fit:cover;background:var(--surface2)}
+.ch-ico.ph{display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--muted);text-transform:uppercase}
+.ch-meta{flex:1;min-width:0}
+.ch-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch-id{font-size:11px;color:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.tag-new{font-size:10px;color:var(--accent);border:1px solid var(--accent);border-radius:5px;padding:0 4px;font-weight:600}
+.ch-del{margin-top:0;background:var(--surface2);color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:5px 12px;font-size:12px;flex:none}
+.ch-del:hover{color:var(--text)}

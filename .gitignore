@@ -1,0 +1,6 @@
+# OS / エディタ / ログ
+.DS_Store
+Thumbs.db
+*.log
+
+# GAS版（clasp管理）は _Archives/oshi-mado-gas/ へ退避済み。この repo は拡張機能が本体。

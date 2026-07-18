@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="styles.css">
+  <title>推し窓 設定</title>
+</head>
+<body class="options">
+  <h1>推し窓 設定</h1>
+
+  <h2>動画の開き方</h2>
+  <p>
+    <label class="opt-row">
+      <input id="openInApp" type="checkbox">
+      <span>動画を <b>YouTube アプリ</b>で開く（小さいポップアップではなくアプリで見る）</span>
+    </label>
+  </p>
+  <p>
+    これを ON にすると、カードをクリックしたとき opener を持たない新規タブとして開き、
+    Chrome の<b>リンクキャプチャ</b>でアプリに渡せるようになります。<br>
+    <b>ただし Chrome 側の準備も必要です。</b>YouTube をアプリとしてインストールし、
+    そのアプリ設定で<b>「対応リンクをこのアプリで開く」</b>を有効にしてください。
+    どちらか一方だけではブラウザのタブで開きます。<br>
+    Ctrl／⌘／中クリックで開いたときは、この設定に関わらず従来どおりタブで開きます。
+  </p>
+
+  <h2>YouTube Data API キー</h2>
+  <p>
+    配信の<b>開始時刻</b>や<b>配信中／予定</b>の判定に使います。未設定でも新着一覧は出ますが、
+    配信は「枠を立てた時刻」に並び、種類の判定もされません。<br>
+    <a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" rel="noopener">Google Cloud Console</a>
+    で <b>YouTube Data API v3</b> を有効化 →「認証情報」→「APIキー」で取得できます。
+  </p>
+  <div class="row">
+    <input id="apikey" type="password" autocomplete="off" spellcheck="false" placeholder="AIza…">
+    <button id="toggleKey" type="button" title="表示／隠す">👁</button>
+  </div>
+  <div>
+    <button id="saveKey">保存して接続テスト</button>
+    <span id="keyStatus" class="meta"></span>
+  </div>
+
+  <h2>推しリスト</h2>
+  <p>
+    いま登録している推しの一覧です。アイコンと名前は
+    <b>APIキーがあれば</b>自動で出ます（キーが無いときは名前だけ）。<br>
+    <b>「外す」のは「保存」を押すまで確定しません。</b>押す前なら「戻す」で元に戻せます。
+  </p>
+  <div id="chlist" class="chlist"><p class="meta">読み込み中…</p></div>
+
+  <h3>推しを追加</h3>
+  <p>
+    <b>チャンネルID（UC…）</b> / <b>チャンネルURL</b> / <b>@ハンドル</b> のいずれでもOK。
+    複数まとめて足すときは1行に1つ貼り付けてください（一括インポートの受け口も兼ねます）。
+  </p>
+  <textarea id="addbox" rows="4"
+    placeholder="UCxxxxxxxxxxxxxxxxxxxxxx&#10;https://www.youtube.com/@example&#10;https://www.youtube.com/channel/UCxxxxxxxxxxxxxxxxxxxxxx"></textarea>
+  <div>
+    <button id="add" type="button">リストに追加</button>
+    <span id="addStatus" class="meta"></span>
+  </div>
+
+  <div class="saverow">
+    <button id="save">保存</button>
+    <span id="status" class="meta"></span>
+  </div>
+  <script src="options.js"></script>
+</body>
+</html>
