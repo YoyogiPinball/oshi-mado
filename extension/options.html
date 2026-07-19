@@ -8,38 +8,6 @@
 <body class="options">
   <h1>推し窓 設定</h1>
 
-  <h2>動画の開き方</h2>
-  <p>
-    <label class="opt-row">
-      <input id="openInApp" type="checkbox">
-      <span>動画を <b>YouTube アプリ</b>で開く（小さいポップアップではなくアプリで見る）</span>
-    </label>
-  </p>
-  <p>
-    これを ON にすると、カードをクリックしたとき opener を持たない新規タブとして開き、
-    Chrome の<b>リンクキャプチャ</b>でアプリに渡せるようになります。<br>
-    <b>ただし Chrome 側の準備も必要です。</b>YouTube をアプリとしてインストールし、
-    そのアプリ設定で<b>「対応リンクをこのアプリで開く」</b>を有効にしてください。
-    どちらか一方だけではブラウザのタブで開きます。<br>
-    Ctrl／⌘／中クリックで開いたときは、この設定に関わらず従来どおりタブで開きます。
-  </p>
-
-  <h2>YouTube Data API キー</h2>
-  <p>
-    配信の<b>開始時刻</b>や<b>配信中／予定</b>の判定に使います。未設定でも新着一覧は出ますが、
-    配信は「枠を立てた時刻」に並び、種類の判定もされません。<br>
-    <a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" rel="noopener">Google Cloud Console</a>
-    で <b>YouTube Data API v3</b> を有効化 →「認証情報」→「APIキー」で取得できます。
-  </p>
-  <div class="row">
-    <input id="apikey" type="password" autocomplete="off" spellcheck="false" placeholder="AIza…">
-    <button id="toggleKey" type="button" title="表示／隠す">👁</button>
-  </div>
-  <div>
-    <button id="saveKey">保存して接続テスト</button>
-    <span id="keyStatus" class="meta"></span>
-  </div>
-
   <h2>推しリスト</h2>
   <p>
     いま登録している推しの一覧です。アイコンと名前は
@@ -64,6 +32,55 @@
     <button id="save">保存</button>
     <span id="status" class="meta"></span>
   </div>
+
+  <details>
+    <summary>YouTube Data API キー（任意）</summary>
+    <p>
+      配信の<b>開始時刻</b>や<b>配信中／予定／アーカイブ</b>の判定、推しリストの<b>アイコンと名前</b>の取得に使います。
+      未設定でも新着一覧は出ますが、配信は「枠を立てた時刻」に並び、種類の判定はされません。
+    </p>
+    <p>取得手順（初回のみ・数分で終わります）:</p>
+    <ol>
+      <li><a href="https://console.cloud.google.com/" target="_blank" rel="noopener">Google Cloud Console</a> を開き、上部でプロジェクトを1つ作成します（既存のものでも構いません）。</li>
+      <li><a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" rel="noopener">YouTube Data API v3</a> のページで<b>「有効にする」</b>を押します。</li>
+      <li>「APIとサービス」→「認証情報」→「認証情報を作成」→<b>「APIキー」</b>を選び、表示された <code>AIza…</code> をコピーします。</li>
+      <li>作成したキーを開き、<b>「アプリケーションの制限」は「なし」</b>にします。拡張機能にはリファラー制限が効かないため、制限をかけると通信が弾かれます。</li>
+      <li>（推奨）<b>「APIの制限」で YouTube Data API v3 のみ</b>に絞ると、万一漏れても他のAPIには使えません。</li>
+      <li>下の欄に貼り付けて<b>「保存して接続テスト」</b>を押します。</li>
+    </ol>
+    <div class="row">
+      <input id="apikey" type="password" autocomplete="off" spellcheck="false" placeholder="AIza…">
+      <button id="toggleKey" type="button" title="表示／隠す">👁</button>
+    </div>
+    <div>
+      <button id="saveKey">保存して接続テスト</button>
+      <span id="keyStatus" class="meta"></span>
+    </div>
+    <p class="note">
+      <b>キーの扱いについて</b><br>
+      ・このキーは <code>chrome.storage.sync</code> に保存され、あなたがログイン中の Chrome 全体に同期されます（他人とは共有されません）。<br>
+      ・送信先は Google の API のみです。推し窓が外部のサーバーへ送ることはありません。<br>
+      ・他人に渡したり、公開リポジトリ・スクショに貼ったりしないでください。<br>
+      ・無料枠は1日あたり1万ユニット。推し窓の消費はごく軽微で、通常は使い切りません（超えても翌日に戻ります）。<br>
+      ・漏れたかも、と思ったら Cloud Console でそのキーを削除し、作り直して入れ直してください。
+    </p>
+  </details>
+
+  <details>
+    <summary>動画を YouTube アプリで開くには</summary>
+    <p>
+      カードは通常、ブラウザの新しいタブで開きます。デスクトップの <b>YouTube アプリ</b>で開きたい場合は、
+      <b>Chrome 側</b>を設定します（推し窓側の操作は不要です）。
+    </p>
+    <ol>
+      <li>Chrome で YouTube を開き、アドレスバー右の「インストール」アイコン、または「⋮」→「キャストして保存して共有」→<b>「ページをアプリとしてインストール」</b>で YouTube をアプリ化します。</li>
+      <li><code>chrome://apps</code> を開き、YouTube アプリを右クリック →<b>「対応リンクをこのアプリで開く」</b>を有効にします。</li>
+    </ol>
+    <p class="note">
+      ※ 環境によっては、拡張機能のポップアップから開くリンクがリンクキャプチャの対象外となり、
+      上記を設定してもブラウザのタブで開くことがあります。その場合はブラウザ表示のままご利用ください。
+    </p>
+  </details>
   <script src="options.js"></script>
 </body>
 </html>

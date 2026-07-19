@@ -27,16 +27,16 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 
 // 種類別タブ（GAS版 digest.gs と同じ構成）。動画タブは Shorts 込み、全部タブは公開済み全種。
 // 予定は未来の話なので「全部」には混ぜず、独立したタブに隔離する。
+// 既定は「配信中」。開いてまず今ライブ中の推しを見たいので先頭に置く（配置は自由）。
 const TABS = [
-  { key: 'all', label: '全部' },
-  { key: 'video', label: '動画' },
   { key: 'live', label: '配信中' },
+  { key: 'all', label: '全て' },
+  { key: 'video', label: '動画' },
   { key: 'archive', label: 'アーカイブ' },
   { key: 'upcoming', label: '予定' }
 ];
 let BUCKETS = { all: [], video: [], live: [], archive: [], upcoming: [] };
-let ACTIVE = 'all';
-let OPEN_IN_APP = false;  // ⚙の設定。ON ならカードを chrome.tabs.create で開く（下のクリック委譲）
+let ACTIVE = 'live';
 
 // 同時実行数を limit 本に抑えて配列を写像する。全件を一斉 fetch しないための歯止め。
 async function mapLimit(arr, limit, fn) {
@@ -204,8 +204,7 @@ async function resolveAll(raw, apiKey, cache, onProgress) {
 async function load() {
   const app = document.getElementById('app');
   const meta = document.getElementById('meta');
-  const { channels = [], apiKey = '', openInApp = false } = await chrome.storage.sync.get(['channels', 'apiKey', 'openInApp']);
-  OPEN_IN_APP = openInApp;
+  const { channels = [], apiKey = '' } = await chrome.storage.sync.get(['channels', 'apiKey']);
   if (!channels.length) {
     app.innerHTML = '<p class="empty">推しがまだ登録されていません。<br>右上の ⚙ から追加してください。</p>';
     meta.textContent = '';
@@ -334,21 +333,6 @@ document.getElementById('opt').addEventListener('click', () => chrome.runtime.op
 // 制限を外して（下の tabview 判定）広い画面でカードを並べられるようにする。
 document.getElementById('openTabs').addEventListener('click', () => {
   chrome.tabs.create({ url: chrome.runtime.getURL('popup.html?view=tab') });
-});
-
-// 「動画をアプリで開く」がONのとき、カードの左クリックを横取りする。
-// 既定の <a target="_blank"> は「補助ブラウジングコンテキスト」扱いで、Chrome のリンク
-// キャプチャ（インストール済みアプリで対応リンクを開く仕組み）の対象外＝必ずブラウザに開く。
-// 代わりに opener を持たない新規タブ（chrome.tabs.create）で開くとキャプチャの土俵に乗り、
-// YouTube をアプリとしてインストール＋「対応リンクをアプリで開く」を有効にしていればアプリで開く。
-// Ctrl/⌘/中クリック等の修飾クリック（バックグラウンドで開く操作）は横取りせず従来どおり。
-document.getElementById('app').addEventListener('click', (e) => {
-  if (!OPEN_IN_APP) return;
-  if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-  const card = e.target.closest('a.card');
-  if (!card) return;
-  e.preventDefault();
-  chrome.tabs.create({ url: card.href });
 });
 
 // チャンネルを絞ると各タブの件数も変わるので、タブ側も描き直す。

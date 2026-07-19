@@ -7,7 +7,6 @@ const addStatusEl = document.getElementById('addStatus');
 const listEl = document.getElementById('chlist');
 const keyEl = document.getElementById('apikey');
 const keyStatusEl = document.getElementById('keyStatus');
-const openInAppEl = document.getElementById('openInApp');
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
@@ -53,14 +52,6 @@ async function testApiKey(key) {
   const msg = err.message || '(説明なし)';
   return { ok: false, msg: `HTTP ${res.status} — ${msg}${hint ? ` ／ ${hint}` : ''}` };
 }
-
-/* ===== 動画の開き方（アプリで開くトグル）===== */
-
-// チェックした瞬間に storage.sync へ書く（保存ボタン不要の即時反映）。popup 側は次回の
-// 読み込みで openInApp を読み、ON ならカードのクリックを chrome.tabs.create に切り替える。
-openInAppEl.addEventListener('change', async () => {
-  await chrome.storage.sync.set({ openInApp: openInAppEl.checked });
-});
 
 document.getElementById('toggleKey').addEventListener('click', () => {
   keyEl.type = keyEl.type === 'password' ? 'text' : 'password';
@@ -223,8 +214,6 @@ document.getElementById('save').addEventListener('click', async () => {
 async function init() {
   keyEl.value = (await chrome.storage.sync.get('apiKey')).apiKey || '';
   if (keyEl.value) keyStatusEl.textContent = '保存済み（未テスト）';
-
-  openInAppEl.checked = (await chrome.storage.sync.get('openInApp')).openInApp || false;
 
   const { channels = [] } = await chrome.storage.sync.get('channels');
   working = channels.map((c) => ({ id: c.id, title: c.id, thumb: '', del: false, isNew: false }));
