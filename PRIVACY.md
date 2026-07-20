@@ -1,4 +1,4 @@
-> 最終更新: 2026-07-20（Mon）17:27
+> 最終更新: 2026-07-21（Tue）00:44
 
 # プライバシーポリシー — 推し窓 (oshi-mado)
 
@@ -15,10 +15,9 @@
 
 | データ | 内容 | 保存場所 |
 |-------|------|---------|
-| 推しリスト | あなたが登録した YouTube チャンネル ID | `chrome.storage.sync` |
-| API キー | あなたが取得した YouTube Data API v3 のキー（任意） | `chrome.storage.sync` |
-| 表示設定 | 「動画をアプリで開く」などのトグル | `chrome.storage.sync` |
-| 判定キャッシュ | 取得済み動画の種類・時刻の一時保存 | `chrome.storage.local` |
+| 推しリスト | あなたが登録した YouTube チャンネル ID（`channels`） | `chrome.storage.sync` |
+| API キー | あなたが取得した YouTube Data API v3 のキー（`apiKey`・任意） | `chrome.storage.sync` |
+| 判定キャッシュ | 取得済み動画の種類と時刻の一時保存（`videoCache`） | `chrome.storage.local` |
 
 `chrome.storage.sync` は Chrome の同期領域です。あなたが Chrome にログインして同期を有効にしている場合、これらの設定はあなた自身の Google アカウントを通じて、あなたの他の端末の Chrome と同期されます。同期先はあなたのアカウント内に限られ、開発者や第三者はアクセスできません。
 `chrome.storage.local` はその端末の中だけに保存され、同期されません。
@@ -31,6 +30,7 @@
 
 - `https://www.youtube.com/` — チャンネルの公開 RSS フィード（新着の取得）、および `@ハンドル` からチャンネル ID を解決するためのチャンネルページ
 - `https://www.googleapis.com/youtube/v3/` — YouTube Data API v3（配信ステータス・開始時刻・チャンネル名とアイコンの取得）
+- `https://i.ytimg.com/` — 動画のサムネイル画像の表示
 
 いずれの通信も、あなたが登録したチャンネル ID と、API キーを設定している場合はそのキーを含みます。これらは Google に対して送られ、それ以外の宛先へは送られません。
 
