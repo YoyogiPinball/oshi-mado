@@ -1,8 +1,14 @@
 {
   "manifest_version": 3,
   "name": "推し窓 (oshi-mado)",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "推しのYouTube新着を横断チェックする窓。複数チャンネルの新着を種類別タブ付きの日毎ダイジェストで表示する（RSS＋Data API方式）。",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
   "permissions": ["storage"],
   "host_permissions": ["https://www.youtube.com/*"],
   "action": {

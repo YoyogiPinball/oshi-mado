@@ -3,4 +3,11 @@
 Thumbs.db
 *.log
 
+# 個人データ・デバッグ出力（配布物にもリポジトリにも含めない）
+recovered-channels.txt
+logdetayo.txt
+
+# パッケージング成果物
+oshi-mado-*.zip
+
 # GAS版（clasp管理）は _Archives/oshi-mado-gas/ へ退避済み。この repo は拡張機能が本体。
