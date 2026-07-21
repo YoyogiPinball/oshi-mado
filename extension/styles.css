@@ -42,6 +42,9 @@ main{padding:8px 12px 16px;max-height:500px;overflow:auto}
 /* options */
 body.options{max-width:720px;margin:0 auto;padding:24px}
 body.options h1{font-size:20px}
+body.options .opt-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+body.options .to-digest{font-size:13px;white-space:nowrap;text-decoration:none}
+body.options .to-digest:hover{text-decoration:underline}
 body.options h2{font-size:15px;margin:28px 0 6px;padding-bottom:4px;color:var(--accent);border-bottom:1px solid var(--border)}
 body.options p{font-size:13px;color:var(--muted)}
 body.options a{color:var(--accent)}
