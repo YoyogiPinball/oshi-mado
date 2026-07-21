@@ -10,4 +10,7 @@ logdetayo.txt
 # パッケージング成果物
 oshi-mado-*.zip
 
+# ストア掲載用スクリーンショット（ダッシュボードへ直接アップ・repo には含めない）
+sukusyo/
+
 # GAS版（clasp管理）は _Archives/oshi-mado-gas/ へ退避済み。この repo は拡張機能が本体。
