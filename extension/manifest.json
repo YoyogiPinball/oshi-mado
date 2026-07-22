@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "推し窓 (oshi-mado)",
   "version": "1.0.1",
-  "description": "推しの YouTube チャンネルをいくつ登録しても、新着の動画・配信中・アーカイブ・配信予定を種類別のタブで一覧できる小窓です。チャンネルを1つずつ見て回らなくても、いま何が来ているかがひと目でわかります。",
+  "description": "推しの YouTube 新着を横断チェックする Chrome 拡張機能です。リストに追加した複数の推しの動向を絞り込み、小窓かタブで開いたページで表示できます。",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
