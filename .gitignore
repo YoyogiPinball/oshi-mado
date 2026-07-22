@@ -2,6 +2,7 @@
 .DS_Store
 Thumbs.db
 *.log
+*:Zone.Identifier
 
 # 個人データ・デバッグ出力（配布物にもリポジトリにも含めない）
 recovered-channels.txt
