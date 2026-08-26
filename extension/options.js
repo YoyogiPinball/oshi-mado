@@ -148,6 +148,18 @@ function renderList() {
 
 /* ===== 追加 ===== */
 
+// ページ HTML から「そのページ自身の」チャンネルIDを取る候補。上から順に試す。
+// "channelId" は関連チャンネル欄（gridChannelRenderer）にも出るため最後に置く。
+// 例: @tsukasa_ryogoku のページには本人の "channelId" が無く、所属事務所
+// （@Specialite_official）の ID だけが載っていて取り違えていた。
+const ID_PATTERNS = [
+  /rel="canonical"[^>]*href="[^"]*\/channel\/(UC[\w-]{22})/,
+  /href="[^"]*\/channel\/(UC[\w-]{22})[^"]*"[^>]*rel="canonical"/,
+  /"externalId":"(UC[\w-]{22})"/,
+  /property="og:url"[^>]*content="[^"]*\/channel\/(UC[\w-]{22})/,
+  /"channelId":"(UC[\w-]{22})"/,
+];
+
 // 行からチャンネルID（UC…）を取り出す。無ければ URL/ハンドルとしてページを取得して抽出。
 async function resolve(line) {
   const s = line.trim();
@@ -159,8 +171,11 @@ async function resolve(line) {
   else if (!/^https?:\/\//.test(url)) url = 'https://www.youtube.com/' + url.replace(/^\//, '');
   try {
     const html = await (await fetch(url)).text();
-    const m = html.match(/"channelId":"(UC[\w-]{22})"/) || html.match(/channel\/(UC[\w-]{22})/);
-    return m ? m[1] : null;
+    for (const re of ID_PATTERNS) {
+      const m = html.match(re);
+      if (m) return m[1];
+    }
+    return null;
   } catch (e) { return null; }
 }
 
