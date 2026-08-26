@@ -7,6 +7,7 @@ const addStatusEl = document.getElementById('addStatus');
 const listEl = document.getElementById('chlist');
 const keyEl = document.getElementById('apikey');
 const keyStatusEl = document.getElementById('keyStatus');
+const verEl = document.getElementById('ver');
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
@@ -227,6 +228,9 @@ document.getElementById('save').addEventListener('click', async () => {
 /* ===== 初期化 ===== */
 
 async function init() {
+  // 表示するバージョンは manifest.json が正本。HTML に手書きすると version を上げたときズレる。
+  verEl.textContent = 'v' + chrome.runtime.getManifest().version;
+
   keyEl.value = (await chrome.storage.sync.get('apiKey')).apiKey || '';
   if (keyEl.value) keyStatusEl.textContent = '保存済み（未テスト）';
 

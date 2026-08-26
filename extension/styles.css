@@ -58,6 +58,8 @@ body.options .meta{color:var(--muted);font-size:13px;margin-left:8px}
 body.options .saverow{margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
 body.options ol{font-size:13px;color:var(--muted);padding-left:20px;line-height:1.75;margin:6px 0}
 body.options ol b{color:var(--text)}
+body.options ul{font-size:13px;color:var(--muted);padding-left:20px;line-height:1.75;margin:6px 0}
+body.options ul b{color:var(--text)}
 body.options code{background:var(--surface2);padding:1px 5px;border-radius:4px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
 body.options .note{font-size:13px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;line-height:1.9}
 body.options .note b{color:var(--text)}
