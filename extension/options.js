@@ -16,6 +16,22 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 // row = { id, title, thumb, del, isNew }
 let working = [];
 
+// storage から読み込んだ時点の APIキー。入力欄と比べて「未保存の変更」を見分けるために持つ。
+let savedKey = '';
+
+// 未保存の編集が残っているか。追加した行(isNew)・外す印を付けた行(del)は保存前で、
+// この状態で画面を閉じると working ごと捨てられて何の痕跡も残らない。
+function hasUnsaved() {
+  return working.some((w) => w.isNew || w.del) || keyEl.value.trim() !== savedKey;
+}
+
+// 閉じる直前にブラウザ標準の確認ダイアログを出す。文面はブラウザが決めるので指定できない。
+window.addEventListener('beforeunload', (e) => {
+  if (!hasUnsaved()) return;
+  e.preventDefault();
+  e.returnValue = '';   // 古い仕様のブラウザ向け。これが無いと出ないものがある
+});
+
 /* ===== 同時実行数を絞るヘルパー ===== */
 async function mapLimit(arr, limit, fn) {
   let cursor = 0;
@@ -62,6 +78,7 @@ document.getElementById('saveKey').addEventListener('click', async () => {
   const key = keyEl.value.trim();
   if (!key) {
     await chrome.storage.sync.remove('apiKey');
+    savedKey = '';
     keyStatusEl.textContent = 'キーを削除しました（配信の判定は無効になります）';
     return;
   }
@@ -69,6 +86,7 @@ document.getElementById('saveKey').addEventListener('click', async () => {
   const r = await testApiKey(key);
   if (r.ok) {
     await chrome.storage.sync.set({ apiKey: key });
+    savedKey = key;
     keyStatusEl.textContent = '保存しました — ' + r.msg;
   } else {
     keyStatusEl.textContent = '保存しませんでした — ' + r.msg;
@@ -231,7 +249,7 @@ async function init() {
   // 表示するバージョンは manifest.json が正本。HTML に手書きすると version を上げたときズレる。
   verEl.textContent = 'v' + chrome.runtime.getManifest().version;
 
-  keyEl.value = (await chrome.storage.sync.get('apiKey')).apiKey || '';
+  keyEl.value = savedKey = (await chrome.storage.sync.get('apiKey')).apiKey || '';
   if (keyEl.value) keyStatusEl.textContent = '保存済み（未テスト）';
 
   const { channels = [] } = await chrome.storage.sync.get('channels');

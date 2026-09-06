@@ -18,6 +18,8 @@ body.popup.tabview main{max-height:none}
 .tab{flex:none;background:var(--surface);color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:6px 14px;font-size:13px;cursor:pointer;white-space:nowrap}
 .tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 .tab .cnt{opacity:.85;font-size:12px}
+.failed{margin:0;padding:6px 12px;background:var(--surface2);border-bottom:1px solid var(--border);color:var(--muted);font-size:12px;line-height:1.6}
+.failed a{color:var(--accent);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
 main{padding:8px 12px 16px;max-height:500px;overflow:auto}
 .thumb{position:relative}
 .badges{position:absolute;left:6px;top:6px;display:flex;gap:4px}

@@ -18,6 +18,7 @@ const API_BATCH = 50;           // videos.list は1回50件まで（＝1ユニ�
 const SHORTS_MAX_SECONDS = 60;  // RSS で Shorts と分からなかったときの保険（尺による近似）
 const CACHE_KEY = 'videoCache';
 const CACHE_MAX = 2000;
+const FAILED_SHOWN = 8;         // 取得失敗チャンネルを画面に並べる上限（全滅時に帯が伸び続けないため）
 
 const WD = ['日', '月', '火', '水', '木', '金', '土'];
 const p2 = (n) => String(n).padStart(2, '0');
@@ -208,6 +209,7 @@ async function load() {
   if (!channels.length) {
     app.innerHTML = '<p class="empty">推しがまだ登録されていません。<br>右上の ⚙ から追加してください。</p>';
     meta.textContent = '';
+    renderFailed([]);   // ⟳ で再読み込みしたとき、前回の失敗帯を残さない
     return;
   }
 
@@ -217,12 +219,13 @@ async function load() {
   // 1) RSS で新着を集める（published での粗い足切り。配信は後で開始時刻に直す）
   app.innerHTML = `<p class="empty">チャンネルを確認中… 0 / ${channels.length}</p>`;
   const raw = [];
-  let ok = 0, ng = 0, seen = 0;
+  const failed = [];   // 落ちたチャンネルは件数でなく ID で残す（誰が消えたのか後で追えるように）
+  let ok = 0, seen = 0;
   await mapLimit(channels, RSS_LIMIT, async (ch) => {
     try {
       (await fetchChannel(ch.id)).forEach((it) => { if (it.published.getTime() >= cutoff) raw.push(it); });
       ok++;
-    } catch (e) { ng++; }
+    } catch (e) { failed.push({ id: ch.id, reason: e.message }); }
     app.innerHTML = `<p class="empty">チャンネルを確認中… ${++seen} / ${channels.length}</p>`;
   });
 
@@ -248,18 +251,36 @@ async function load() {
   buildChannelFilter(resolved);
   renderTabs();
   render();
+  renderFailed(failed);
 
   const counts = {};
   resolved.forEach((r) => { counts[r.type] = (counts[r.type] || 0) + 1; });
   console.log('[oshi-mado] %s秒 / %sch(失敗%s) / %s件 / APIユニット %s / 内訳 %o',
-    ((performance.now() - t0) / 1000).toFixed(1), ok, ng, resolved.length, units, counts);
+    ((performance.now() - t0) / 1000).toFixed(1), ok, failed.length, resolved.length, units, counts);
+  if (failed.length) console.warn('[oshi-mado] RSS 取得失敗 %o', failed);
 
   let note = '';
   if (error === 'nokey') note = '（⚙でAPIキーを設定すると配信を判定します）';
   else if (error) note = `（API失敗: ${error}）`;
   // 種類ごとの件数はタブ側が出すので、ここは全体像だけ
   meta.textContent = `${ok}ch / ${BUCKETS.all.length}件 / 直近${DAYS}日`
-    + (ng ? `（取得失敗${ng}ch）` : '') + note;
+    + (failed.length ? `（取得失敗${failed.length}ch）` : '') + note;
+}
+
+// RSS が落ちたチャンネルを名指しで出す。件数だけだと「登録し忘れ」と「取得失敗」を
+// 見分けられず、推しが出てこない理由が画面から分からない。
+// 落ちた回はそのチャンネルの RSS 自体が返らず名前を取れないので、ID をリンクにして
+// クリックで誰なのかを確かめられるようにする。
+function renderFailed(failed) {
+  const el = document.getElementById('failed');
+  if (!failed.length) { el.hidden = true; el.textContent = ''; return; }
+  const shown = failed.slice(0, FAILED_SHOWN).map((f) =>
+    `<a href="https://www.youtube.com/channel/${esc(f.id)}" target="_blank" rel="noopener"`
+    + ` title="${esc(f.reason)}">${esc(f.id)}</a>`).join('、');
+  const rest = failed.length - FAILED_SHOWN;
+  el.innerHTML = `⚠ ${failed.length}chの新着を取得できませんでした（この回は表示に出ていません）: `
+    + shown + (rest > 0 ? `、ほか${rest}件` : '');
+  el.hidden = false;
 }
 
 // タブの件数は「チャンネル絞り込みを適用したあと」の数を出す。
