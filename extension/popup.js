@@ -216,14 +216,18 @@ async function load() {
   const t0 = performance.now();
   const cutoff = Date.now() - DAYS * 86400000;
 
-  // 1) RSS で新着を集める（published での粗い足切り。配信は後で開始時刻に直す）
+  // 1) RSS で新着を集める。ここでは日付で足切りしない。
+  //    RSS の published は「枠を立てた時刻」で、配信が始まっても動かない。ここで7日カットを
+  //    掛けると、8日以上前に告知した配信が配信中でも一覧から消える（久しぶりの誕生日配信・
+  //    公式チャンネルの無料配信など）。足切りは種類判定のあと、視聴可能になった時刻で行う（3 の cutoff）。
+  //    件数は増えるが API は増えない。resolveAll が Shorts と確定済みキャッシュを門番で落とすため。
   app.innerHTML = `<p class="empty">チャンネルを確認中… 0 / ${channels.length}</p>`;
   const raw = [];
   const failed = [];   // 落ちたチャンネルは件数でなく ID で残す（誰が消えたのか後で追えるように）
   let ok = 0, seen = 0;
   await mapLimit(channels, RSS_LIMIT, async (ch) => {
     try {
-      (await fetchChannel(ch.id)).forEach((it) => { if (it.published.getTime() >= cutoff) raw.push(it); });
+      raw.push(...await fetchChannel(ch.id));
       ok++;
     } catch (e) { failed.push({ id: ch.id, reason: e.message }); }
     app.innerHTML = `<p class="empty">チャンネルを確認中… ${++seen} / ${channels.length}</p>`;
