@@ -11,18 +11,13 @@
     <a class="to-digest" href="popup.html?view=tab" target="_blank" rel="noopener">← 新着一覧を開く</a>
   </header>
 
-  <h2>推しリスト</h2>
-  <p>
-    いま登録している推しの一覧です。アイコンと名前は
-    <b>APIキーがあれば</b>自動で出ます（キーが無いときは名前だけ）。<br>
-    <b>「外す」のは「保存」を押すまで確定しません。</b>「保存」を押す前なら「戻す」で元に戻せます。
-  </p>
-  <div id="chlist" class="chlist"><p class="meta">読み込み中…</p></div>
-
-  <h3>推しを追加</h3>
+  <h2>推しを追加</h2>
   <p>
     <b>チャンネルID（UC…）</b> / <b>チャンネルURL</b> / <b>@ハンドル</b> のいずれでもOK。
-    複数まとめて足すときは1行に1つ貼り付けてください（一括インポートの受け口も兼ねます）。
+    複数まとめて足すときは1行に1つ貼り付けてください。
+    推しリストに登録できるのは<b>240チャンネルまで</b>です。
+    YouTube の登録チャンネルをまとめて取り込む手順は
+    <a href="https://yoyogipinball.github.io/oshi-mado/#takeout" target="_blank" rel="noopener">ガイド</a>にあります。
   </p>
   <textarea id="addbox" rows="4"
     placeholder="UCxxxxxxxxxxxxxxxxxxxxxx&#10;https://www.youtube.com/@example&#10;https://www.youtube.com/channel/UCxxxxxxxxxxxxxxxxxxxxxx"></textarea>
@@ -31,11 +26,22 @@
     <span id="addStatus" class="meta"></span>
   </div>
 
+  <details id="chbox">
+    <summary>推しリスト<span id="chcount" class="meta"></span></summary>
+    <p>
+      いま登録している推しの一覧です。アイコンと名前は
+      <b>APIキーがあれば</b>自動で出ます（キーが無いときは名前だけ）。<br>
+      <b>「外す」のは「保存」を押すまで確定しません。</b>「保存」を押す前なら「戻す」で元に戻せます。
+    </p>
+    <div id="chlist" class="chlist"><p class="meta">読み込み中…</p></div>
+  </details>
+
   <div class="saverow">
     <button id="save">保存</button>
     <span id="status" class="meta"></span>
   </div>
 
+  <h2>詳細設定</h2>
   <details>
     <summary>YouTube Data API キー（任意）</summary>
     <p>
@@ -69,6 +75,58 @@
     </p>
   </details>
 
+  <h2>ヘルプ</h2>
+  <p>
+    詳しい手順は <a href="https://yoyogipinball.github.io/oshi-mado/" target="_blank" rel="noopener">推し窓ガイド</a> にまとめています。
+  </p>
+  <details>
+    <summary>使い方</summary>
+    <ol>
+      <li>上の「推しを追加」に、チャンネルID・チャンネルURL・@ハンドルを1行に1つ貼り付けて<b>「リストに追加」</b>を押し、最後に<b>「保存」</b>を押します。</li>
+      <li>（任意）「YouTube Data API キー」を設定すると、配信中・予定・アーカイブの判定と、配信の開始時刻が使えるようになります。</li>
+      <li>ツールバーの推し窓アイコンを押すと、直近7日の新着が日付ごとに並びます。</li>
+    </ol>
+    <ul>
+      <li><b>タブ</b>：配信中 / 全て / 動画 / アーカイブ / 予定 を切り替えます。開いたときは「配信中」です。</li>
+      <li><b>全ch</b>：特定の推しの投稿だけに絞り込みます。</li>
+      <li><b>⟳</b>：新着を取り直します。<b>⚙</b>：この設定画面を開きます。</li>
+      <li><b>⧉ タブで開く</b>：ポップアップではなくブラウザのタブで、広い画面に並べて表示します。</li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>YouTube の登録チャンネルをまとめて取り込む</summary>
+    <ol>
+      <li><a href="https://takeout.google.com/" target="_blank" rel="noopener">Google Takeout</a> で「YouTube と YouTube Music」の<b>登録チャンネル</b>だけを選んでエクスポートします。</li>
+      <li>届いた ZIP を展開し、登録チャンネルの CSV ファイルをメモ帳などで開きます。</li>
+      <li>推しでないチャンネルの行を消してから全体をコピーし、上の「推しを追加」に貼り付けて<b>「リストに追加」</b>→<b>「保存」</b>を押します。登録できるのは240チャンネルまでなので、CSV の行を全部貼らずに絞ってください。</li>
+    </ol>
+    <p>各画面での操作は <a href="https://yoyogipinball.github.io/oshi-mado/#takeout" target="_blank" rel="noopener">ガイドの「登録チャンネルをまとめて取り込む」</a> を見てください。</p>
+  </details>
+
+  <details>
+    <summary>よくある質問</summary>
+    <p><b>Q. 推しの投稿が一覧に出てきません</b><br>
+      一覧の上部に「新着を取得できませんでした」と出ていれば、そのチャンネルの取得に一時的に失敗しています。YouTube 側がときどきエラーを返すためで、推し窓も自動で2回まで取り直していますが、それでも取れなかったチャンネルです。少し待ってから ⟳ で取り直してください。
+      出ていない場合は、直近7日に投稿が無いか、推しリストに登録されていない可能性があります。
+      なお YouTube の公開フィードは1チャンネルにつき最新15件までしか返さないため、投稿の多いチャンネルでは古い投稿が取得できないことがあります。</p>
+    <p><b>Q. 推しは何チャンネルまで登録できますか</b><br>
+      240チャンネルまでです。推しリストは Chrome の同期用の保存場所に入れていて、1項目の大きさに上限があるためです。
+      240を超えた状態で「保存」を押すと、保存せずに「あと何件外してください」と表示します。</p>
+    <p><b>Q. 「直近7日」はいつから数えていますか</b><br>
+      視聴できるようになった時刻で数えます。配信中・アーカイブは配信が始まった時刻、動画・Shorts は公開された時刻です。
+      ずっと前に告知された配信でも、始まった時点で一覧に出ます。</p>
+    <p><b>Q. 予定時刻を過ぎた配信枠が「予定」から消えました</b><br>
+      開始予定時刻を24時間過ぎても始まらない枠は、「予定」に出さないようにしています。
+      配信トラブルで枠を取り直したときの消し忘れや、置きっぱなしのフリーチャット枠がいつまでも残るのを防ぐためです。
+      予定より遅れて始まった配信は、始まった時点で「配信中」に出ます。
+      開始予定時刻が設定されていない枠は、枠を立てた時刻から数えます。先の予定は何日先でもそのまま出ます。</p>
+    <p><b>Q. Shorts なのに「動画」扱いになっています</b><br>
+      YouTube には Shorts かどうかを示す公式の情報が無いため、URL か「60秒以下」で判定しています。60秒を超える Shorts は通常の動画として並ぶことがあります。</p>
+    <p><b>Q. コミュニティ投稿は出せますか</b><br>
+      出せません。YouTube Data API にコミュニティ投稿を取得する仕組みが無いためです。</p>
+  </details>
+
   <details>
     <summary>動画を YouTube アプリで開くには</summary>
     <p>
@@ -84,9 +142,12 @@
       上記を設定してもブラウザのタブで開くことがあります。その場合はブラウザ表示のままご利用ください。
     </p>
   </details>
+
+  <h2>この拡張について</h2>
   <details>
     <summary>更新内容<span id="ver" class="meta"></span></summary>
     <ul>
+      <li><b>v1.0.5</b> — 予定時刻を24時間過ぎても始まらない配信枠を「予定」から外すようにしました。枠を取り直したときの消し忘れや、置きっぱなしの枠がいつまでも残らなくなります。YouTube 側の一時的なエラーで新着を取得できなかったとき、自動で取り直すようにしました。推しリストが240チャンネルを超えると保存が黙って失敗していたのを、保存前に止めて理由を出すようにしました。設定画面を「推しを追加」から始まる並びに整理し、使い方・よくある質問・問い合わせ先を足しました。</li>
       <li><b>v1.0.4</b> — ずっと前から告知されていた配信が、配信中でも一覧に出てこないことがある不具合を直しました。久しぶりの誕生日配信や、公式チャンネルが数週間前に立てた枠が対象です。</li>
       <li><b>v1.0.3</b> — この「更新内容」欄を作りました。版ごとの変更点をここで確認できます。設定を保存せずに閉じようとしたとき、確認が出るようにしました。新着を取得できなかったチャンネルを、新着一覧の上部に表示するようにしました。</li>
       <li><b>v1.0.2</b> — チャンネルを追加するとき、貼り付けたURLとは別のチャンネル（所属事務所など）が登録されてしまう不具合を直しました。</li>
@@ -94,6 +155,13 @@
       <li><b>v1.0.0</b> — 公開しました。</li>
     </ul>
   </details>
+
+  <footer class="opt-footer">
+    推し窓 — 開発: YoyogiPinball<br>
+    不具合・ご質問: <a href="https://github.com/YoyogiPinball/oshi-mado/issues" target="_blank" rel="noopener">GitHub の Issue</a>
+    ／ メール <a href="mailto:yoyogipinball11@gmail.com">yoyogipinball11@gmail.com</a><br>
+    ほかの制作物: <a href="https://yoyogipinball.github.io" target="_blank" rel="noopener">ポートフォリオサイト</a>
+  </footer>
 
   <script src="options.js"></script>
 </body>

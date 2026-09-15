@@ -72,6 +72,7 @@ body.options summary::-webkit-details-marker{display:none}
 body.options summary::before{content:"▸ ";font-size:12px}
 body.options details[open] summary::before{content:"▾ "}
 body.options details .note{background:var(--surface2)}
+body.options .opt-footer{margin-top:32px;padding-top:14px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);line-height:1.9}
 
 /* 推しリスト（編集画面） */
 .chlist{display:flex;flex-direction:column;gap:6px;margin-top:6px}

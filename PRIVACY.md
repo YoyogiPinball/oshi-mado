@@ -1,4 +1,4 @@
-> 最終更新: 2026-09-06（Sun）21:48
+> 最終更新: 2026-09-15（Tue）02:03
 
 # プライバシーポリシー — 推し窓 (oshi-mado)
 
@@ -56,6 +56,9 @@ API キーが含まれるのは `googleapis.com` への通信だけです。<br>
 
 不具合・ご質問は GitHub の Issue へお願いします。
 <https://github.com/YoyogiPinball/oshi-mado/issues>
+
+メールでのお問い合わせは次のアドレスへお願いします。
+<yoyogipinball11@gmail.com>
 
 開発者のほかの制作物は、ポートフォリオサイトにまとめています。
 <https://yoyogipinball.github.io>

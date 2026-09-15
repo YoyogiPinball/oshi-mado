@@ -12,7 +12,10 @@
 // APIキーが無ければ RSS だけで動き、配信も公開時刻のまま・種類判定なしに落ちる（degraded）。
 
 const DAYS = 7;
+const UPCOMING_GRACE_MS = 24 * 3600000;  // 予定時刻をこれ以上過ぎても始まらない枠は放置とみなす
 const RSS_LIMIT = 8;            // RSS の同時取得数
+const RSS_RETRIES = 2;          // 404/5xx のときに取り直す回数
+const RSS_RETRY_WAIT_MS = 500;  // 取り直し前の待ち（2回目は倍）
 const API_LIMIT = 3;            // videos.list の同時実行数
 const API_BATCH = 50;           // videos.list は1回50件まで（＝1ユニット）
 const SHORTS_MAX_SECONDS = 60;  // RSS で Shorts と分からなかったときの保険（尺による近似）
@@ -56,9 +59,20 @@ async function mapLimit(arr, limit, fn) {
 /* ===== 新着の発見（RSS） ===== */
 
 // 1チャンネルの RSS を取得して投稿配列に変換する。link が /shorts/ なら Shorts と確定できる。
+// YouTube の公開 RSS は生きているチャンネルでも 404/5xx を断続的に返す（2026-09-14 実測で約3割）。
+// 続けて取り直せば通ることが多いので、その2種だけ間を置いて RSS_RETRIES 回まで取り直す。
+async function fetchRss(url) {
+  for (let attempt = 0; ; attempt++) {
+    const res = await fetch(url);
+    const retryable = res.status === 404 || res.status >= 500;
+    if (res.ok || !retryable || attempt >= RSS_RETRIES) return res;
+    await new Promise((r) => setTimeout(r, RSS_RETRY_WAIT_MS * (attempt + 1)));
+  }
+}
+
 async function fetchChannel(id) {
   const url = `https://www.youtube.com/feeds/videos.xml?channel_id=${encodeURIComponent(id)}`;
-  const res = await fetch(url);
+  const res = await fetchRss(url);
   if (!res.ok) throw new Error('HTTP ' + res.status);
   const xml = new DOMParser().parseFromString(await res.text(), 'text/xml');
   const channel = xml.getElementsByTagName('title')[0]?.textContent || id; // 先頭 title = チャンネル名
@@ -220,7 +234,8 @@ async function load() {
   //    RSS の published は「枠を立てた時刻」で、配信が始まっても動かない。ここで7日カットを
   //    掛けると、8日以上前に告知した配信が配信中でも一覧から消える（久しぶりの誕生日配信・
   //    公式チャンネルの無料配信など）。足切りは種類判定のあと、視聴可能になった時刻で行う（3 の cutoff）。
-  //    件数は増えるが API は増えない。resolveAll が Shorts と確定済みキャッシュを門番で落とすため。
+  //    件数は増えるが API はほぼ増えない。resolveAll が Shorts と確定済みキャッシュを門番で落とすため
+  //    （予定・配信中はキャッシュしないので、RSS に残る放置枠は毎回問い合わせる。50件で1ユニット）。
   app.innerHTML = `<p class="empty">チャンネルを確認中… 0 / ${channels.length}</p>`;
   const raw = [];
   const failed = [];   // 落ちたチャンネルは件数でなく ID で残す（誰が消えたのか後で追えるように）
@@ -241,15 +256,18 @@ async function load() {
   await writeCache(cache);
 
   // 3) 種類ごとに仕分ける。公開済みは新しい順・直近N日。
-  //    予定だけは未来なので日付で絞らず、開始が早い順（次に何が来るかを見たいため）。
+  //    予定は先の枠を期間で絞らず、開始が早い順（次に何が来るかを見たいため）。
+  //    ただし予定時刻を UPCOMING_GRACE 過ぎても始まらない枠は外す。取り直しで消し忘れた枠や
+  //    置きっぱなしのフリーチャット枠で、RSS 段で足切りしなくなった v1.0.4 から出るようになった。
   const byTimeDesc = (a, b) => b.time - a.time;
+  const staleBefore = Date.now() - UPCOMING_GRACE_MS;
   const pub = resolved.filter((i) => i.type !== 'upcoming' && i.time.getTime() >= cutoff);
   BUCKETS = {
     all: pub.slice().sort(byTimeDesc),
     video: pub.filter((i) => i.type === 'video' || i.type === 'short').sort(byTimeDesc),
     live: pub.filter((i) => i.type === 'live').sort(byTimeDesc),
     archive: pub.filter((i) => i.type === 'archive').sort(byTimeDesc),
-    upcoming: resolved.filter((i) => i.type === 'upcoming').sort((a, b) => a.time - b.time)
+    upcoming: resolved.filter((i) => i.type === 'upcoming' && i.time.getTime() >= staleBefore).sort((a, b) => a.time - b.time)
   };
 
   buildChannelFilter(resolved);
@@ -261,7 +279,9 @@ async function load() {
   resolved.forEach((r) => { counts[r.type] = (counts[r.type] || 0) + 1; });
   console.log('[oshi-mado] %s秒 / %sch(失敗%s) / %s件 / APIユニット %s / 内訳 %o',
     ((performance.now() - t0) / 1000).toFixed(1), ok, failed.length, resolved.length, units, counts);
-  if (failed.length) console.warn('[oshi-mado] RSS 取得失敗 %o', failed);
+  // RSS はときどき落ちるのが普通で、失敗は画面上部の帯にも出す。warn だと chrome://extensions の
+  // エラー一覧に毎回溜まって本物のエラーが埋もれるので info にする。%o はそこで展開されないので1本の文字列で出す
+  if (failed.length) console.info(`[oshi-mado] RSS 取得失敗 ${failed.length}ch\n` + failed.map((f) => `${f.id}: ${f.reason}`).join('\n'));
 
   let note = '';
   if (error === 'nokey') note = '（⚙でAPIキーを設定すると配信を判定します）';

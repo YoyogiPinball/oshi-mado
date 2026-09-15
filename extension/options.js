@@ -16,6 +16,11 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 // row = { id, title, thumb, del, isNew }
 let working = [];
 
+// storage.sync は1項目 8192 バイトまで（QUOTA_BYTES_PER_ITEM）。channels は {"id":"UC+22文字"} が
+// 1件34バイトなので 240件で 8169 バイト、241件で超えて set() が即失敗する。
+const MAX_CHANNELS = 240;
+const keptCount = () => working.filter((w) => !w.del).length;
+
 // storage から読み込んだ時点の APIキー。入力欄と比べて「未保存の変更」を見分けるために持つ。
 let savedKey = '';
 
@@ -147,8 +152,14 @@ function applyMeta(map) {
 /* ===== 描画 ===== */
 
 function renderList() {
+  // 推しリストは既定で折りたたむので、閉じたままでも件数と未保存の変更が見えるようにする
+  const adding = working.filter((w) => w.isNew && !w.del).length;
+  const removing = working.filter((w) => w.del).length;
+  document.getElementById('chcount').textContent = `${working.length - adding}件`
+    + (adding ? ` ／ 追加予定 ${adding}件` : '') + (removing ? ` ／ 外す予定 ${removing}件` : '')
+    + (keptCount() > MAX_CHANNELS ? ` ／ 上限${MAX_CHANNELS}件を超えています` : '');
   if (!working.length) {
-    listEl.innerHTML = '<p class="meta">まだ登録がありません。下の欄から推しを追加してください。</p>';
+    listEl.innerHTML = '<p class="meta">まだ登録がありません。上の「推しを追加」から追加してください。</p>';
     return;
   }
   listEl.innerHTML = working.map((w) => {
@@ -215,10 +226,14 @@ document.getElementById('add').addEventListener('click', async () => {
     added.push(id);
   }
   renderList();
+  if (added.length) document.getElementById('chbox').open = true;   // 追加した行を確かめられるように開く
   ta.value = '';
+  const over = keptCount() - MAX_CHANNELS;
   addStatusEl.textContent = `追加: ${added.length}件`
     + (failed.length ? ` ／ 解決できず: ${failed.join(', ')}` : '')
-    + '（「保存」を押すと確定します）';
+    + (over > 0
+      ? `（推しリストは${MAX_CHANNELS}件までです。いま${keptCount()}件なので、あと${over}件「外す」を押してから保存してください）`
+      : '（「保存」を押すと確定します）');
   // 追加分の名前・アイコンを後追いで埋める
   if (added.length) { applyMeta(await loadMeta(added)); renderList(); }
 });
@@ -235,7 +250,18 @@ listEl.addEventListener('click', (e) => {
 
 document.getElementById('save').addEventListener('click', async () => {
   const keep = working.filter((w) => !w.del);
-  await chrome.storage.sync.set({ channels: keep.map((w) => ({ id: w.id })) });
+  if (keep.length > MAX_CHANNELS) {
+    statusEl.textContent = `保存していません。推しリストは${MAX_CHANNELS}件までです（いま${keep.length}件）。`
+      + `あと${keep.length - MAX_CHANNELS}件「外す」を押してから、もう一度保存してください。`;
+    return;
+  }
+  // 件数以外の理由（書き込み回数の上限など）で断られても、黙って終わらせない
+  try {
+    await chrome.storage.sync.set({ channels: keep.map((w) => ({ id: w.id })) });
+  } catch (e) {
+    statusEl.textContent = `保存できませんでした（${e.message}）。少し待ってからもう一度保存してください。`;
+    return;
+  }
   const removed = working.length - keep.length;
   working = keep.map((w) => ({ ...w, isNew: false }));  // 保存後は「新規」バッジを落とす
   renderList();

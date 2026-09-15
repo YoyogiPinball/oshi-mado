@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>推し窓ガイド</title>
+  <meta name="description" content="Chrome 拡張機能「推し窓」の導入と、YouTube の登録チャンネルをまとめて取り込む手順">
+  <style>
+    :root{--bg:#f6f7f9;--surface:#fff;--surface2:#eef0f3;--text:#232830;--muted:#5f6672;--accent:#c24a74;--border:#e3e5ea}
+    @media (prefers-color-scheme:dark){:root{--bg:#191c22;--surface:#232830;--surface2:#2b313b;--text:#d9dde4;--muted:#9aa1ad;--accent:#e08aa6;--border:#333a46}}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,"Segoe UI",Roboto,"Noto Sans JP","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;line-height:1.8;font-size:15px}
+    .wrap{max-width:760px;margin:0 auto;padding:32px 16px 48px}
+    header h1{font-size:26px;margin:0 0 4px}
+    header p{margin:0;color:var(--muted)}
+    nav{margin:24px 0;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px}
+    nav ol{margin:0;padding-left:20px}
+    h2{font-size:19px;margin:44px 0 10px;padding-bottom:6px;border-bottom:2px solid var(--accent);scroll-margin-top:16px}
+    h3{font-size:16px;margin:28px 0 6px}
+    a{color:var(--accent)}
+    ol.steps{padding-left:22px}
+    ol.steps>li{margin:10px 0}
+    code{background:var(--surface2);padding:1px 6px;border-radius:4px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;overflow-wrap:anywhere}
+    .ui{display:inline-block;padding:0 6px;border:1px solid var(--border);border-radius:4px;background:var(--surface);font-weight:600;font-size:14px}
+    .note{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:8px;padding:10px 14px;margin:14px 0}
+    .note p{margin:4px 0}
+    .path{display:block;background:var(--surface2);padding:8px 12px;border-radius:6px;overflow-x:auto;white-space:nowrap}
+    footer{margin-top:56px;padding-top:16px;border-top:1px solid var(--border);color:var(--muted);font-size:13px}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>推し窓ガイド</h1>
+    <p>登録した YouTube チャンネルの新着と配信を1画面にまとめる Chrome 拡張機能「推し窓」の使い方です。</p>
+  </header>
+
+  <nav>
+    <ol>
+      <li><a href="#install">インストールする</a></li>
+      <li><a href="#add">推しを1件ずつ追加する</a></li>
+      <li><a href="#takeout">登録チャンネルをまとめて取り込む</a></li>
+      <li><a href="#apikey">YouTube Data API キーを設定する（任意）</a></li>
+      <li><a href="#contact">お問い合わせ</a></li>
+    </ol>
+  </nav>
+
+  <h2 id="install">1. インストールする</h2>
+  <ol class="steps">
+    <li><a href="https://chromewebstore.google.com/detail/gockednaohkhlfcpofmdaeioaaeohnbl" target="_blank" rel="noopener">Chrome ウェブストアの推し窓のページ</a>を開き、<span class="ui">Chrome に追加</span> を押します。</li>
+    <li>ツールバーのパズルのアイコンから推し窓をピン留めしておくと、すぐ開けます。</li>
+    <li>推し窓のアイコンを押し、右上の <span class="ui">⚙</span> で設定画面を開きます。</li>
+  </ol>
+
+  <h2 id="add">2. 推しを1件ずつ追加する</h2>
+  <p>設定画面の一番上にある「推しを追加」の欄に、次のどれかを1行に1つ貼り付けます。</p>
+  <ul>
+    <li>チャンネルID（<code>UC</code> で始まる24文字）</li>
+    <li>チャンネルページの URL（例: <code>https://www.youtube.com/@example</code>）</li>
+    <li>@ハンドル（例: <code>@example</code>）</li>
+  </ul>
+  <p><span class="ui">リストに追加</span> を押すと、下の「推しリスト」に「新規」の印つきで並びます。最後に <span class="ui">保存</span> を押すと確定します。保存を押す前に画面を閉じようとすると、確認が出ます。</p>
+
+  <h2 id="takeout">3. 登録チャンネルをまとめて取り込む</h2>
+  <p>
+    YouTube で登録しているチャンネルを一覧ファイル（CSV）に書き出し、その中身を推し窓に貼り付けます。
+    書き出しには Google 公式のデータ持ち出しサービス <a href="https://takeout.google.com/" target="_blank" rel="noopener">Google Takeout</a> を使います。
+    推し窓に Google アカウントへのログインを許可する必要はありません。
+  </p>
+
+  <div class="note">
+    <p>ボタンやファイルの名前は、Google アカウントの表示言語によって変わります。以下は日本語表示の場合です。英語表示では、フォルダーやファイルが <code>subscriptions.csv</code> のような英語名になります。</p>
+  </div>
+
+  <h3>3-1. Google Takeout で書き出す</h3>
+  <ol class="steps">
+    <li><a href="https://takeout.google.com/" target="_blank" rel="noopener">takeout.google.com</a> を開きます。YouTube で使っている Google アカウントでログインしてください。</li>
+    <li>「エクスポートに含めるデータの選択」の一覧の上にある <span class="ui">選択をすべて解除</span> を押します。最初は全サービスにチェックが入っているためです。</li>
+    <li>一覧を下へスクロールし、<span class="ui">YouTube と YouTube Music</span> にだけチェックを入れます。</li>
+    <li>その項目の中にある <span class="ui">すべての YouTube データが含まれます</span> を押します。開いた画面でいったんすべてのチェックを外し、<span class="ui">登録チャンネル</span> にだけチェックを入れて <span class="ui">OK</span> を押します。視聴履歴などを含めないので、書き出しが早く終わります。</li>
+    <li>一覧の一番下の <span class="ui">次のステップ</span> を押します。</li>
+    <li>「ファイル形式、エクスポート回数、エクスポート先の選択」の画面になります。最初から次の値が選ばれているので、<strong>何も変えずに</strong>一番下の <span class="ui">エクスポートを作成</span> を押します。
+      <ul>
+        <li>エクスポート先: ダウンロード リンクをメールで送信</li>
+        <li>頻度: 1 回のエクスポート</li>
+        <li>ファイル形式: .zip</li>
+        <li>ファイルサイズ: 2 GB（登録チャンネルの一覧だけなら 2 GB に届かないので、ファイルが分かれることはまずありません）</li>
+      </ul>
+      ここの値は変えても構いません。どの組み合わせでも、最終的に登録チャンネルの CSV ファイルが手に入れば推し窓に取り込めます。迷ったら最初の値のままで大丈夫です。
+    </li>
+    <li>準備ができると、Google からメールが届きます。登録チャンネルだけなら数分で終わることが多いですが、数時間かかることもあります。</li>
+    <li>メールの <span class="ui">ファイルをダウンロード</span> を押し、ZIP ファイルを保存します。途中でパスワードの入力を求められることがあります。ダウンロードできるのはメールが届いてから1週間です。</li>
+  </ol>
+
+  <h3>3-2. CSV ファイルを開く</h3>
+  <ol class="steps">
+    <li>ダウンロードした ZIP ファイルを展開します（Windows では右クリック → <span class="ui">すべて展開</span>）。</li>
+    <li>中にある登録チャンネルの CSV ファイルを探します。日本語表示ではおおよそ次の場所です。
+      <span class="path"><code>Takeout / YouTube と YouTube Music / 登録チャンネル / 登録チャンネル.csv</code></span>
+    </li>
+    <li>ファイルを右クリック → <span class="ui">プログラムから開く</span> → <span class="ui">メモ帳</span> で開きます。1行に1チャンネルずつ、チャンネルID・URL・チャンネル名が並んでいます。</li>
+  </ol>
+
+  <div class="note">
+    <p>ダブルクリックすると Excel などの表計算ソフトで開くことがあります。そのまま保存すると形式が変わることがあるので、メモ帳などのテキストエディターで開くのがおすすめです。</p>
+  </div>
+
+  <h3>3-3. 推し窓に貼り付ける</h3>
+  <ol class="steps">
+    <li>推しとして見たいチャンネル以外の行を消します。CSV には登録しているチャンネルが全部入っています。</li>
+    <li>残った行をすべて選択してコピーします（<code>Ctrl + A</code> → <code>Ctrl + C</code>）。</li>
+    <li>推し窓の設定画面を開き、「推しを追加」の欄に貼り付けて <span class="ui">リストに追加</span> を押します。</li>
+    <li>「推しリスト」に並んだ名前を確かめ、不要なものがあれば <span class="ui">外す</span> を押します。</li>
+    <li>最後に <span class="ui">保存</span> を押します。</li>
+  </ol>
+
+  <div class="note">
+    <p>1行目の見出しの行（列の名前が並んだ行）は、貼り付けても「解決できず」と表示されるだけで、登録には影響しません。消してから貼り付けても構いません。</p>
+    <p>推しリストに登録できるのは <strong>240 チャンネルまで</strong>です。Chrome の同期ストレージの容量に上限があるためです。登録チャンネルが多い場合は、行を絞ってから貼り付けてください。</p>
+  </div>
+
+  <h2 id="apikey">4. YouTube Data API キーを設定する（任意）</h2>
+  <p>
+    キーが無くても新着一覧は出ます。キーを設定すると、配信中・予定・アーカイブの判定、配信の開始時刻、推しリストのアイコンと名前が使えるようになります。
+    キーは自分の Google Cloud プロジェクトで作ったものを使います（開発者が用意したキーを共有する方式ではありません）。
+  </p>
+  <ol class="steps">
+    <li><a href="https://console.cloud.google.com/" target="_blank" rel="noopener">Google Cloud Console</a> を開き、プロジェクトを1つ作成します（既存のものでも構いません）。</li>
+    <li><a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" rel="noopener">YouTube Data API v3</a> のページで <span class="ui">有効にする</span> を押します。</li>
+    <li>「APIとサービス」→「認証情報」→「認証情報を作成」→ <span class="ui">APIキー</span> を選び、表示された <code>AIza…</code> で始まるキーをコピーします。</li>
+    <li>作成したキーを開き、「アプリケーションの制限」は <span class="ui">なし</span> にします。拡張機能にはリファラー制限が効かないため、制限をかけると通信が弾かれます。</li>
+    <li>（推奨）「APIの制限」で YouTube Data API v3 だけに絞ります。万一キーが漏れても、ほかの API には使えなくなります。</li>
+    <li>推し窓の設定画面の「詳細設定」→「YouTube Data API キー（任意）」に貼り付けて <span class="ui">保存して接続テスト</span> を押します。</li>
+  </ol>
+  <div class="note">
+    <p>キーは他人に渡したり、スクリーンショットや公開リポジトリに載せたりしないでください。無料枠は1日1万ユニットで、推し窓の消費は1回の更新でおおむね1ユニットです。</p>
+  </div>
+
+  <h2 id="contact">5. お問い合わせ</h2>
+  <ul>
+    <li>不具合の報告・ご要望: <a href="https://github.com/YoyogiPinball/oshi-mado/issues" target="_blank" rel="noopener">GitHub の Issue</a></li>
+    <li>メール: <a href="mailto:yoyogipinball11@gmail.com">yoyogipinball11@gmail.com</a></li>
+    <li>保存するデータと通信先: <a href="https://github.com/YoyogiPinball/oshi-mado/blob/main/PRIVACY.md" target="_blank" rel="noopener">プライバシーポリシー</a></li>
+  </ul>
+
+  <footer>
+    推し窓 — 開発: YoyogiPinball ／ ほかの制作物は <a href="https://yoyogipinball.github.io" target="_blank" rel="noopener">ポートフォリオサイト</a> にまとめています。
+  </footer>
+</div>
+</body>
+</html>
